@@ -1,0 +1,7 @@
+Deployment:
+  test-tcp-svc:
+      test: ["/bin/sh", "-c", "/bin/graceful_termination.sh"]
+      istio-proxy: [ '/bin/sh', '-c', 'while [ 1==1 ]; do netstat -tulpn | grep LISTEN | grep :20000; if [ $? -gt 0 ]; then  break; fi; sleep 1; done']
+  http-svc:
+      http-svc: ["/bin/sh", "-c", "/bin/graceful_termination.sh"]
+      istio-proxy: [ '/bin/sh', '-c', 'while [ 1==1 ]; do curl localhost:3000/health; if [ $? -gt 0 ]; then  break; fi; sleep 1; done']
