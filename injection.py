@@ -35,8 +35,6 @@ def patch(confFile, userFile):
             print("YO")
             prestop_patch = { "preStop": {  "exec": { "command": conf[type][name][container["name"]] }  } }
             target["spec"]["template"]["spec"]["containers"][i]["lifecycle"] = prestop_patch
-        else:
-            print(container["name"]+ "NOT"+ str(conf[type][name]))
         i+=1
     return yaml.dump(target)
 
