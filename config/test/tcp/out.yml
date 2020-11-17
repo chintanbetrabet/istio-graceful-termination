@@ -1,0 +1,39 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: test-tcp-svc
+  labels:
+    role: app
+    name: test-tcp-svc
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 80%
+  template:
+    metadata:
+      annotations:
+        "cluster-autoscaler.kubernetes.io/safe-to-evict": "true"
+        sidecar.istio.io/inject: "true"
+      labels:
+        name: test-tcp-svc
+
+    spec:
+      terminationGracePeriodSeconds: 600
+      containers:
+      - name: test-tcp-svc
+        image: test-tcp-svc:latest
+        imagePullPolicy: IfNotPresent
+        readinessProbe:
+          tcpSocket:
+             port: 20000
+          initialDelaySeconds: 20
+          timeoutSeconds: 5
+        lifecycle:
+          preStop:
+            exec:
+              command:
+              - /bin/sh
+              - -c
+              - /bin/graceful_termination.sh

@@ -1,0 +1,36 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: http-svc
+  labels:
+    role: app
+    name: http-svc
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 80%
+  template:
+    metadata:
+      annotations:
+        "cluster-autoscaler.kubernetes.io/safe-to-evict": "true"
+        sidecar.istio.io/inject: "true"
+      labels:
+        name: http-svc
+
+    spec:
+      terminationGracePeriodSeconds: 600
+      containers:
+      - name: http-svc
+        image: http-svc:latest
+        imagePullPolicy: IfNotPresent
+        readinessProbe:
+          httpGet:
+            path:  /_healthz
+            port: 3000
+          initialDelaySeconds: 10
+          timeoutSeconds: 2
+          periodSeconds: 10
+          successThreshold: 2
+          failureThreshold: 3

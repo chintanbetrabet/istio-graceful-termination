@@ -1,0 +1,20 @@
+apiVersion: apps/v1beta1
+kind: OtherType
+metadata:
+  name: not-http-svc
+  labels:
+    role: app
+    name: http-svc
+spec:
+  template:
+    metadata:
+      annotations:
+        "cluster-autoscaler.kubernetes.io/safe-to-evict": "true"
+        sidecar.istio.io/inject: "true"
+      labels:
+        name: http-svc
+    spec:
+      containers:
+      - name: http-svc
+        image: http-svc:latest
+        imagePullPolicy: IfNotPresent
