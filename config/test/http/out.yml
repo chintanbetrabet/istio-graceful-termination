@@ -1,42 +1,17 @@
-apiVersion: apps/v1beta1
-kind: Deployment
-metadata:
-  labels:
-    name: http-svc
-    role: app
-  name: http-svc
-spec:
-  replicas: 1
-  strategy:
-    rollingUpdate:
-      maxSurge: 80%
-    type: RollingUpdate
-  template:
-    metadata:
-      annotations:
-        cluster-autoscaler.kubernetes.io/safe-to-evict: 'true'
-        sidecar.istio.io/inject: 'true'
-      labels:
-        name: http-svc
-    spec:
-      containers:
-      - image: http-svc:latest
-        imagePullPolicy: IfNotPresent
-        lifecycle:
-          preStop:
-            exec:
-              command:
-              - /bin/sh
-              - -c
-              - /bin/graceful_termination.sh
-        name: http-svc
-        readinessProbe:
-          failureThreshold: 3
-          httpGet:
-            path: /_healthz
-            port: 3000
-          initialDelaySeconds: 10
-          periodSeconds: 10
-          successThreshold: 2
-          timeoutSeconds: 2
-      terminationGracePeriodSeconds: 600
+http-svc:
+  lifecycle:
+    preStop:
+      exec:
+        command:
+        - /bin/sh
+        - -c
+        - /bin/graceful_termination.sh
+istio-proxy:
+  lifecycle:
+    preStop:
+      exec:
+        command:
+          - '/bin/sh'
+          - '-c'
+          - 'while [ 1==1 ]; do curl localhost:3000/health; if [ $? -gt 0 ]; then  break; fi; sleep 1; done'
+  

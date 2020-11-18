@@ -1,4 +1,4 @@
-apiVersion: apps/v1
+apiVersion: apps/v1beta1
 kind: Deployment
 metadata:
   name: http-svc
@@ -11,13 +11,10 @@ spec:
     type: RollingUpdate
     rollingUpdate:
       maxSurge: 80%
-  selector:
-    matchLabels:
-      name: http-svc
   template:
     metadata:
       annotations:
-        sidecar.istio.io/inject: "true"
+        "cluster-autoscaler.kubernetes.io/safe-to-evict": "true"
       labels:
         name: http-svc
 
